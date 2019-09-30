@@ -24,7 +24,9 @@ class AudioEngine {
     var lpFilter: AKLowPassFilter!
     var pitchShifter: AKPitchShifter!
     var chorus: AKChorus!
-
+    var delayIsOn: Bool = true
+    var myNode: AKNode!
+    
     init() {
         // Set up a player to the loop the file's playback
         do {
@@ -34,18 +36,27 @@ class AudioEngine {
             return
         }
         player = AKPlayer(audioFile: file)
-        player.isLooping = true
+        player.isLooping = false
 
-        // Next we'll connect the audio player to a delay effect
-        delay = AKDelay(player)
-
-        // Set the parameters of the delay here
-        delay.time = 0.1 // seconds
-        delay.feedback = 0.8 // Normalized Value 0 - 1
-        delay.dryWetMix = 1 // Normalized Value 0 - 1
-
+//        if delayIsOn == true {
+//            print("Delay On")
+//        // Connect the audio player to a delay effect
+//            delay = AKDelay(player)
+//
+//        // Set the parameters of the delay here
+//            delay.time = 0.2 // seconds
+//            delay.feedback = 0.5 // Normalized Value 0 - 1
+//            delay.dryWetMix = 0.5 // Normalized Value 0 - 1
+//        
+//            myNode = delay
+//        } else {
+//            
+//            print("Delay Off")
+            myNode = player
+//        }
+        
         // Continue adding more nodes as you wish, for example, reverb:
-        reverb = AKReverb(delay)
+        reverb = AKReverb(myNode)
         reverb.loadFactoryPreset(.cathedral)
 
         reverb2 = AKReverb(reverb)
@@ -68,8 +79,8 @@ class AudioEngine {
         chorus.feedback = 0.1
         chorus.dryWetMix = 0.8
         
-//        AudioKit.output = player
-        AudioKit.output = pitchShifter
+        AudioKit.output = myNode
+//        AudioKit.output = pitchShifter
         do {
             try AudioKit.start()
         } catch {

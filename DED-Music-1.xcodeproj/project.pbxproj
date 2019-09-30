@@ -121,6 +121,7 @@
 				5CE0E90E233F196300B0DCAE /* Sources */,
 				5CE0E90F233F196300B0DCAE /* Frameworks */,
 				5CE0E910233F196300B0DCAE /* Resources */,
+				1385EA1C1F7B3C316D10D4DD /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -179,6 +180,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		1385EA1C1F7B3C316D10D4DD /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-DED-Music-1/Pods-DED-Music-1-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-DED-Music-1/Pods-DED-Music-1-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DED-Music-1/Pods-DED-Music-1-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		4B657949562A62D174909956 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
