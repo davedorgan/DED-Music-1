@@ -24,19 +24,21 @@ var chorus: AKChorus!
 var delayIsOn: Bool = true
 var myNode: AKNode!
 var reverb1PickerData: [String] = [String]()
+var tmpFattenTime: Double = 0.03
+var tmpFattenMix: Double = 0.0
 
 var isPlaying : Bool = false
 //var myAudioEngine = AudioEngine()
 
-           let fatten = AKOperationEffect(pitchShifter) { input, parameters in
+let fatten = AKOperationEffect(pitchShifter) { input, parameters in
 
-               let time = parameters[0]
-               let mix = parameters[1]
+    let time = parameters[0]
+    let mix = parameters[1]
 
-               let fatten = "\(input) dup \(1 - mix) * swap 0 \(time) 1.0 vdelay \(mix) * +"
+    let fatten = "\(input) dup \(1 - mix) * swap 0 \(time) 1.0 vdelay \(mix) * +"
 
-               return AKStereoOperation(fatten)
-           }
+    return AKStereoOperation(fatten)
+}
 
 
 class AudioTableViewController: UITableViewController, UIPickerViewDelegate, UIPickerViewDataSource {
@@ -97,7 +99,7 @@ class AudioTableViewController: UITableViewController, UIPickerViewDelegate, UIP
          }
     }
     
-    
+    // Delay
     @IBAction func DelayOnOffSwitch(_ sender: UISwitch) {
         if sender.isOn {
             delayIsOn = true
@@ -109,15 +111,7 @@ class AudioTableViewController: UITableViewController, UIPickerViewDelegate, UIP
             print("IBAction delay is off")
             delay.dryWetMix = 0
         }
-        
-//            delay = AKDelay(player)
-//
-//        // Set the parameters of the delay here
-//            delay.time = 0.2 // seconds
-//            delay.feedback = 0.5 // Normalized Value 0 - 1
-//            delay.dryWetMix = 0.5 // Normalized Value 0 - 1
     }
-    
     
     @IBOutlet weak var LiveKnobDelay1: LiveKnob!
     
@@ -133,8 +127,8 @@ class AudioTableViewController: UITableViewController, UIPickerViewDelegate, UIP
         print(delay.feedback, " feedback")
     }
     
+    //Reverb 1 & 2
     @IBOutlet weak var LiveKnobReverb1: LiveKnob!
-    
     
     @IBAction func LiveKnobReverb1(_ sender: UISlider) {
         reverb1.dryWetMix = Double((sender ).value)
@@ -155,7 +149,6 @@ class AudioTableViewController: UITableViewController, UIPickerViewDelegate, UIP
         delay.dryWetMix = Double((sender as UISlider).value)
         print(delay.dryWetMix, " dryWetMix")
     }
-    
     
     @IBOutlet weak var Reverb1PickerView: UIPickerView!
     
@@ -195,19 +188,35 @@ class AudioTableViewController: UITableViewController, UIPickerViewDelegate, UIP
         semitonesLabel.text = String(Int(sender.value)) + " Semitones"
         print(String(Int(sender.value)))
     }
+
+    // Fatten controls
+    @IBOutlet weak var liveKnobFattenTime: LiveKnob!
+    
+    @IBAction func liveKnobFattenTime(_ sender: UISlider) {
+        tmpFattenTime = Double((sender as UISlider).value)
+        fatten.parameters[0] = tmpFattenTime
+        print(String(tmpFattenTime), " Fatten time")
+    }
+  
+    @IBAction func liveKnobFattenMix(_ sender: UISlider) {
+        tmpFattenMix = Double((sender as UISlider).value)
+        fatten.parameters[1] = tmpFattenMix
+        print(String(tmpFattenMix), " Fatten mix")
+
+    }
+    
     
     // Start & Stop controls
     @IBAction func StartButton(_ sender: UIButton!) {
         if isPlaying == false {
             player.play()
-            fatten.parameters = [0.3, 0.5]
+//            fatten.parameters = [0.3, 0.5]
             isPlaying = true
 //            player.isLooping = true
         }
     }
 
-    
-    @IBAction func StopButton(_ sender: Any) {
+    @IBAction func StopButton(_ sender: UIButton) {
         if isPlaying == true {
             player.stop()
             isPlaying = false
@@ -242,47 +251,25 @@ class AudioTableViewController: UITableViewController, UIPickerViewDelegate, UIP
 
           if delayIsOn == true {
               print("Delay On")
-  //        // Connect the audio player to a delay effect
               delay = AKDelay(player)
-            
-          // Set the parameters of the delay here
-              delay.time = 0.1 // seconds
-              delay.feedback = 0.5 // Normalized Value 0 - 1
- //             delay.dryWetMix = 0.5 // Normalized Value 0 - 1
-  
               myNode = delay
           } else {
-  
               print("Delay Off")
               myNode = player
           }
-          
-          // Continue adding more nodes as you wish, for example, reverb:
+        
+          // Node chain
           reverb1 = AKReverb(myNode)
-//          reverb1.loadFactoryPreset(.cathedral)
-
           reverb2 = AKReverb(reverb1)
-//          reverb2.loadFactoryPreset(.cathedral)
-
           hpFilter = AKHighPassFilter(reverb2)
-//          hpFilter.cutoffFrequency = 100 // Hz
-//          hpFilter.resonance = 0.5 // dB
-          
           lpFilter = AKLowPassFilter(hpFilter)
-//          lpFilter.cutoffFrequency = 200 // Hz
-//          lpFilter.resonance = 0.5 // dB
-          
           pitchShifter = AKPitchShifter(lpFilter)
-//          pitchShifter.shift = -12
           
 //          chorus = AKChorus(pitchShifter)
 //  //        chorus.frequency = 400
 //          chorus.depth = 0.1
 //          chorus.feedback = 0.1
 //          chorus.dryWetMix = 0.8
-        
-       
-            
         
 //          AudioKit.output = myNode
 //          let rebalancedWithSource = AKBalancer(pitchShifter, comparator: player)
@@ -294,6 +281,7 @@ class AudioTableViewController: UITableViewController, UIPickerViewDelegate, UIP
               AKLog("AudioKit did not start!")
           }
       
+        fatten.parameters = [tmpFattenTime, tmpFattenMix]
         delayIsOn = true
 
     }
